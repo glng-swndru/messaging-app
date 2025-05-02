@@ -22,15 +22,15 @@ var MapTypeToken = map[string]time.Duration{
 
 var jwtSecret = []byte(env.GetEnv("APP_SECRET", ""))
 
-func GenerateToken(ctx context.Context, username, fullname, tokenType string) (string, error) {
+func GenerateToken(ctx context.Context, username, fullname, tokenType string, now time.Time) (string, error) {
 
 	claimToken := ClaimToken{
 		Username: username,
 		Fullname: fullname,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    env.GetEnv("APP_NAME", ""),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(MapTypeToken[tokenType])),
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(MapTypeToken[tokenType])),
 		},
 	}
 
