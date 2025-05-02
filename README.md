@@ -1,40 +1,160 @@
----
-title: Bootstrap
-keywords: [bootstrap, gorm, validator, env]
-description: Integrating Bootstrap.
----
+# Simple Messaging App
 
-# Bootstrap
+A lightweight messaging application built with Golang using Go Fiber, designed to provide basic chat functionality with user authentication and chat history storage. This project is deployed on AWS and leverages MySQL and MongoDB for persistent data storage.
 
-[![Github](https://img.shields.io/static/v1?label=&message=Github&color=2ea44f&style=for-the-badge&logo=github)](https://github.com/gofiber/recipes/tree/master/bootstrap) [![StackBlitz](https://img.shields.io/static/v1?label=&message=StackBlitz&color=2ea44f&style=for-the-badge&logo=StackBlitz)](https://stackblitz.com/github/gofiber/recipes/tree/master/bootstrap)
+## 📌 Project Overview
 
-Fiber bootstrap for rapid development using Go-Fiber / Gorm / Validator.
+- **Version:** 1.0  
+- **Date:** 26-04-2025  
+- **Author:** Gilang Swandaru  
 
-## Components
-* Fiber
-  * Html Engine Template
-  * Logger
-  * Monitoring
-* Gorm
-  * PGSQL Driver
-* Validator
-* Env File
+## 🧩 System Architecture
 
-## Router
-API Router `/api` with rate limiter middleware
-Http Router `/` with CORS and CSRF middleware
+The system is structured as follows:
 
-## Setup
+| Component | Description |
+|----------|-------------|
+| Website | Frontend interface for users |
+| Golang Monolithic App | Backend handling user management and messaging |
+| User Management | Subsystem for login, logout, and registration |
+| Messaging System | Subsystem for sending and retrieving messages |
+| MySQL | Stores user management data |
+| MongoDB | Stores chat message history |
+| AWS | Hosting platform |
 
-1. Copy the example env file over:
-    ```
-    cp .env.example .env
-    ```
+**Connection Details:**
+- Website ↔️ Golang App (User): **HTTP**
+- Website ↔️ Golang App (Messaging): **WebSocket** (sending), **HTTP** (retrieving)
 
-2. Modify the env file you just copied `.env` with the correct credentials for your database. Make sure the database you entered in `DB_NAME` has been created.
+## 🛠️ Tech Stack
 
-3. Run the API:
-    ```
-    go run main.go
-    ```
-Your api should be running at `http://localhost:4000/` if the port is in use you may modify it in the `.env` you just created.
+- **Language:** Go
+- **Framework:** Go Fiber
+- **Databases:** MySQL (users), MongoDB (messages)
+- **Cloud:** AWS
+- **CI/CD:** GitHub Actions
+- **Monitoring & Logging:** ELK Stack (Elasticsearch, Logstash, Kibana)
+
+## 🔐 API Contract
+
+### Register
+- **POST** `/user/v1/register`
+- **Body:**
+```json
+{
+  "Username": "string",
+  "Password": "string",
+  "full_name": "string",
+  "created_at": "datetime",
+  "updated_at": "datetime"
+}
+```
+- **Response:**
+```json
+{
+  "message": "string",
+  "data": {
+    "Id": "int",
+    "Username": "string",
+    "full_name": "string"
+  }
+}
+```
+
+### Login
+- **POST** `/user/v1/login`
+- **Body:**
+```json
+{
+  "Username": "string",
+  "Password": "string"
+}
+```
+- **Response:**
+```json
+{
+  "username": "string",
+  "full_name": "string",
+  "token": "string",
+  "refresh_token": "string"
+}
+```
+
+### Logout
+- **DELETE** `/user/v1/logout`
+- **Headers:** `Authorization: JWT Token`
+- **Response:**
+```json
+{
+  "Id": "int",
+  "Username": "string",
+  "full_name": "string"
+}
+```
+
+### Refresh Token
+- **PUT** `/user/v1/refresh-token`
+- **Headers:** `Authorization: JWT Refresh Token`
+- **Response:**
+```json
+{
+  "message": "string",
+  "data": {
+    "token": "string"
+  }
+}
+```
+
+### Get Chat History
+- **GET** `/message/v1/history&page={1}&limit={10}`
+- **Headers:** `Authorization: JWT Token`
+- **Response:**
+```json
+[
+  {
+    "to": "int",
+    "From": "int",
+    "date": "datetime",
+    "message": "string"
+  }
+]
+```
+
+### Send Chat
+- **WebSocket** `/message/v1/send`
+- **Message:**
+```json
+{
+  "to": "int",
+  "From": "int",
+  "date": "datetime",
+  "message": "string"
+}
+```
+
+## 🗃️ Database Schema
+
+### MySQL - Users Table
+| Column | Type | Attributes |
+|--------|------|------------|
+| id | int | Primary key, Auto increment |
+| username | varchar(20) | Not null, Default `""` |
+| full_name | varchar(100) | Not null, Default `""` |
+| password | varchar(255) | Not null, Default `""` |
+| created_at | datetime | Default `CURRENT_TIMESTAMP` |
+| updated_at | datetime | Default `CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` |
+
+### MongoDB - Message History
+```json
+{
+  "to": "int",
+  "From": "int",
+  "date": "datetime",
+  "message": "string"
+}
+```
+
+## 📊 Observability
+
+- **Monitoring:** Kibana
+- **Logging:** ELK Stack
