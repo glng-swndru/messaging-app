@@ -10,6 +10,8 @@ A lightweight messaging application built with Golang using Go Fiber, designed t
 
 ## 🧩 System Architecture
 
+![System Architecture](diagram%20messaging%20app.png)
+
 The system is structured as follows:
 
 | Component | Description |
