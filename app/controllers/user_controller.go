@@ -10,36 +10,40 @@ import (
 	"github.com/kooroshh/fiber-boostrap/app/repository"
 	jwttoken "github.com/kooroshh/fiber-boostrap/pkg/jwt_token"
 	"github.com/kooroshh/fiber-boostrap/pkg/response"
+	"go.elastic.co/apm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "Register", "controller")
+	defer span.End()
+
 	user := new(models.User)
 	err := ctx.BodyParser(user)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to parse request: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, errResponse.Error(), nil)
 	}
 	err = user.Validate()
 	if err != nil {
 		errResponse := fmt.Errorf("failed to validate request: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, errResponse.Error(), nil)
 	}
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to encrypt the password: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, errResponse.Error(), nil)
 	}
 	user.Password = string(hashPassword)
 
-	err = repository.InsertNewUser(ctx.Context(), user)
+	err = repository.InsertNewUser(spanCtx, user)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to insert new user: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, errResponse.Error(), nil)
 	}
 
@@ -50,6 +54,9 @@ func Register(ctx *fiber.Ctx) error {
 }
 
 func Login(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "Login", "controller")
+	defer span.End()
+
 	// parsing request and validation request
 	var (
 		loginReq = new(models.LoginRequest)
@@ -60,41 +67,41 @@ func Login(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(loginReq)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to parse request: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, errResponse.Error(), nil)
 	}
 	err = loginReq.Validate()
 	if err != nil {
 		errResponse := fmt.Errorf("failed to validate request: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, errResponse.Error(), nil)
 	}
 
-	user, err := repository.GetUserByUsername(ctx.Context(), loginReq.Username)
+	user, err := repository.GetUserByUsername(spanCtx, loginReq.Username)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to get username: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusNotFound, "username/password salah", nil)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginReq.Password))
 	if err != nil {
 		errResponse := fmt.Errorf("failed to check password: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusNotFound, "username/password salah", nil)
 	}
 
-	token, err := jwttoken.GenerateToken(ctx.Context(), user.Username, user.Fullname, "token", now)
+	token, err := jwttoken.GenerateToken(spanCtx, user.Username, user.Fullname, "token", now)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to generate token: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusNotFound, "an error occurred in the system", nil)
 	}
 
-	refreshToken, err := jwttoken.GenerateToken(ctx.Context(), user.Username, user.Fullname, "refresh token", now)
+	refreshToken, err := jwttoken.GenerateToken(spanCtx, user.Username, user.Fullname, "refresh token", now)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to refresh token: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusNotFound, "an error occurred in the system", nil)
 	}
 
@@ -106,7 +113,7 @@ func Login(ctx *fiber.Ctx) error {
 		RefreshTokenExpired: now.Add(jwttoken.MapTypeToken["refresh_token"]),
 	}
 
-	err = repository.InsertNewUserSession(ctx.Context(), userSession)
+	err = repository.InsertNewUserSession(spanCtx, userSession)
 	if err != nil {
 		errResponse := fmt.Errorf("failed insert user session: %v", err)
 		log.Println(errResponse)
@@ -122,8 +129,11 @@ func Login(ctx *fiber.Ctx) error {
 }
 
 func Logout(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "Logout", "controller")
+	defer span.End()
+
 	token := ctx.Get("Authorization")
-	err := repository.DeleteUserSessionByToken(ctx.Context(), token)
+	err := repository.DeleteUserSessionByToken(spanCtx, token)
 	if err != nil {
 		errResponse := fmt.Errorf("failed delete user session: %v", err)
 		log.Println(errResponse)
@@ -133,23 +143,25 @@ func Logout(ctx *fiber.Ctx) error {
 	return response.SendSuccessResponse(ctx, nil)
 }
 func RefreshToken(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "RefreshToken", "controller")
+	defer span.End()
 
 	now := time.Now()
 	refreshToken := ctx.Get("Authorization")
 	userName := ctx.Locals("username").(string)
 	fullName := ctx.Locals("full_name").(string)
 
-	token, err := jwttoken.GenerateToken(ctx.Context(), userName, fullName, "token", now)
+	token, err := jwttoken.GenerateToken(spanCtx, userName, fullName, "token", now)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to generate token: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
 	}
 
-	err = repository.UpdateUserSessionToken(ctx.Context(), token, now.Add(jwttoken.MapTypeToken["token"]), refreshToken)
+	err = repository.UpdateUserSessionToken(spanCtx, token, now.Add(jwttoken.MapTypeToken["token"]), refreshToken)
 	if err != nil {
 		errResponse := fmt.Errorf("failed to update token: %v", err)
-		fmt.Println(errResponse)
+		log.Println(errResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
 	}
 

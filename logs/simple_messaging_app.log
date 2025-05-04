@@ -1,0 +1,19 @@
+2025/05/04 09:50:13 successfully migrate database
+2025/05/04 09:50:13 successfully connected to mongoDB
+2025/05/04 11:04:51 successfully migrate database
+2025/05/04 11:04:51 successfully connected to mongoDB
+2025/05/04 12:16:31 successfully migrate database
+2025/05/04 12:16:32 successfully connected to mongoDB
+2025/05/04 12:18:21 failed to check password: crypto/bcrypt: hashedPassword is not the hash of the given password
+2025/05/04 12:19:20 failed to find message: server selection error: server selection timeout, current topology: { Type: ReplicaSetNoPrimary, Servers: [{ Addr: ac-v2tfyme-shard-00-00.3efle9v.mongodb.net:27017, Type: Unknown, Last error: remote error: tls: internal error }, { Addr: ac-v2tfyme-shard-00-02.3efle9v.mongodb.net:27017, Type: Unknown, Last error: remote error: tls: internal error }, { Addr: ac-v2tfyme-shard-00-01.3efle9v.mongodb.net:27017, Type: Unknown, Last error: remote error: tls: internal error }, ] }
+2025/05/04 12:21:36 error payload:  websocket: close 1001 (going away)
+2025/05/04 13:01:48 successfully migrate database
+2025/05/04 13:01:49 successfully connected to mongoDB
+2025/05/04 13:04:41 failed to insert new user: Error 1062 (23000): Duplicate entry 'gilang' for key 'users.uni_users_username'
+2025/05/04 20:11:57 successfully migrate database
+2025/05/04 20:11:58 successfully connected to mongoDB
+2025/05/04 20:22:19 failed to find message: server selection error: server selection timeout, current topology: { Type: ReplicaSetNoPrimary, Servers: [{ Addr: ac-v2tfyme-shard-00-01.3efle9v.mongodb.net:27017, Type: Unknown, Last error: remote error: tls: internal error }, { Addr: ac-v2tfyme-shard-00-00.3efle9v.mongodb.net:27017, Type: Unknown, Last error: remote error: tls: internal error }, { Addr: ac-v2tfyme-shard-00-02.3efle9v.mongodb.net:27017, Type: Unknown, Last error: remote error: tls: internal error }, ] }
+2025/05/04 20:36:36 successfully migrate database
+2025/05/04 20:36:36 successfully connected to mongoDB
+2025/05/04 20:40:42 successfully migrate database
+2025/05/04 20:40:42 successfully connected to mongoDB
