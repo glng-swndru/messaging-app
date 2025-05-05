@@ -115,7 +115,7 @@ The system is structured as follows:
 [
   {
     "to": "int",
-    "From": "int",
+    "from": "string",
     "date": "datetime",
     "message": "string"
   }
@@ -128,7 +128,7 @@ The system is structured as follows:
 ```json
 {
   "to": "int",
-  "From": "int",
+  "from": "string",
   "date": "datetime",
   "message": "string"
 }
@@ -147,16 +147,23 @@ The system is structured as follows:
 | updated_at | datetime | Default `CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` |
 
 ### MongoDB - Message History
+Example Document:
 ```json
 {
-  "to": "int",
-  "From": "int",
-  "date": "datetime",
-  "message": "string"
+  "_id": "681640f236b66ea30b87bce0",
+  "from": "gilang swandaru",
+  "message": "test",
+  "date": { "timestamp": 1746284109, "i": 87 }
 }
 ```
 
+| Field | Type | Description |
+|-------|------|-------------|
+| _id | ObjectId | Unique identifier for the document |
+| from | string | Sender's name |
+| message | string | Message content |
+| date | Timestamp | Message timestamp |
+
 ## 📊 Observability
 
-- **Monitoring:** Kibana
-- **Logging:** ELK Stack
+- **Monitoring and Logging:** ELK Stack
