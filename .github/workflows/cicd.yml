@@ -22,7 +22,7 @@ jobs:
               run: docker build -t gilangswndru/simple-messaging-app .
 
             - name: Push Docker image to Docker Hub
-              run: docker push gilangswndru/simple-messaging-app
+              run: docker push gilangswndru/simple-messaging-app:latest
     deploy:
         needs: build
         runs-on: self-hosted
