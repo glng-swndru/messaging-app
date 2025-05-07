@@ -16,7 +16,7 @@ jobs:
               run: echo "PORT=${{ secrets.PORT }}" > .env
 
             - name: Login to Docker Hub
-              run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+              run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
             - name: Build Docker image
               run: docker build -t gilangswndru/simple-messaging-app .
@@ -32,6 +32,6 @@ jobs:
 
             - name: Delete old Docker container
               run: docker rm -f simple-messaging-app || true
-              
+
             - name: Run Docker container
               uses: docker run -d -p 8080:8080 -p 4000:4000 --name simple-messaging-app gilangswndru/simple-messaging-app
