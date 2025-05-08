@@ -1,16 +1,14 @@
- #Name of workflow
-name: Deploy LangChattoApp
+name: Deploy MessagingApp
 
-#Branch that will trigger the workflow
 on:
   push:
     branches:
       - main
-      
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout Source
         uses: actions/checkout@v4
       - name: create .env file
@@ -32,12 +30,10 @@ on:
         run: docker build . -t gilangswndru/simple-messaging-app
       - name: Push docker image to docker hub
         run: docker push gilangswndru/simple-messaging-app:latest
-
-   
-    deploy:
-      needs: build
-      runs-on: self-hosted
-      steps:
+  deploy:
+    need: build
+    runs-on: self-hosted
+    steps:
       - name: Pull docker image
         run: docker pull [You Docker Images App]:latest
       - name: Delete old docker container
