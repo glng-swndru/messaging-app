@@ -35,9 +35,9 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Pull docker image
-        run: docker pull [You Docker Images App]:latest
+        run: docker pull gilangswndru/simple-messaging-app:latest
       - name: Delete old docker container
-        run: docker rm -f [You Docker Images App]
+        run: docker rm -f gilangswndru/simple-messaging-app
       - name: Running new docker container
         run: |
           docker run -d \
