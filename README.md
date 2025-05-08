@@ -33,9 +33,31 @@ The system is structured as follows:
 - **Language:** Go
 - **Framework:** Go Fiber
 - **Databases:** MySQL (users), MongoDB (messages)
-- **Cloud:** AWS
+- **Cloud:** AWS (EC2, RDS)
 - **CI/CD:** GitHub Actions
 - **Monitoring & Logging:** ELK Stack (Elasticsearch, Logstash, Kibana)
+
+## ⚙️ CI/CD Pipeline (GitHub Actions)
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+### CI Workflow
+- Triggered on every `push` and `pull_request` to `main` branch
+- Steps include:
+  - Checkout repository
+  - Set up Go environment
+  - Run `go build` and `go test`
+  - Lint and format checks
+  - Docker build test
+
+### CD Workflow
+- Triggered on successful merge to `main` and new tag release
+- Steps include:
+  - Build Docker image
+  - Push image to Docker Hub: `gilangswndru/simple-messaging-app:latest`
+  - Deploy to AWS (e.g., via SSH or ECS)
+
+CI/CD workflows can be found under `.github/workflows/`
 
 ## 🔐 API Contract
 
